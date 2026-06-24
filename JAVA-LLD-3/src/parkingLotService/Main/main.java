@@ -2,9 +2,14 @@ package parkingLotService.Main;
 
 import parkingLotService.enums.ParkingPreference;
 import parkingLotService.enums.SupportedVehicleType;
+import parkingLotService.interfaces.TicketRepository;
 import parkingLotService.model.*;
+import parkingLotService.repository.InMemoryTicketRepository;
+import parkingLotService.service.InvoiceService;
 import parkingLotService.service.ParkingLotService;
+import parkingLotService.service.PricingService;
 import parkingLotService.service.TicketService;
+import parkingLotService.strategy.PricingAllocationStrategyFactory;
 import parkingLotService.strategy.SpotAllocationStrategyFactory;
 
 import java.util.List;
@@ -13,30 +18,7 @@ public class main {
     static void main() {
 
         //Create Parking Spot
-        ParkingSpot parkingSpot1 = new ParkingSpot("1", SupportedVehicleType.CAR, 10);
-        ParkingSpot parkingSpot2 = new ParkingSpot("2", SupportedVehicleType.CAR, 10);
-        ParkingSpot parkingSpot3 = new ParkingSpot("3", SupportedVehicleType.BIKE, 10);
-        ParkingSpot parkingSpot4 = new ParkingSpot("4", SupportedVehicleType.EV, 10);
-
-        //Create Parking Floor and assign Spot to these floors.
-        ParkingFloor parkingFloor1 = new ParkingFloor("1", List.of(parkingSpot1, parkingSpot2, parkingSpot3));
-        ParkingFloor parkingFloor2 = new ParkingFloor("2", List.of(parkingSpot4));
-
-        //Create Parking Lot with the location Selected and assign the floors to the parking lot.
-        ParkingLot parkingLot = new ParkingLot("AMB Mall", List.of(parkingFloor1,parkingFloor2));
-
-        // Create SpotALlocation Strategy factory
-
-        SpotAllocationStrategyFactory spotAllocationStrategyFactory = new SpotAllocationStrategyFactory();
-
-        //Select the strategy to allocate the spot to the vehicle.
-        SpotAllocator allocator = new SpotAllocator(spotAllocationStrategyFactory);
-
-        //Initiate Ticket Service
-        TicketService ticketService = new TicketService();
-
-        //Create ParkingLotService to manage the parking lot operations.
-        ParkingLotService parkingLotService = new ParkingLotService(allocator, ticketService, parkingLot);
+        ParkingLotService parkingLotService = getParkingLotService();
 
         //Create vehicles that will be entering the parking lot.
         Vehicle car1 = new Car("KA-04-MJ-5555", ParkingPreference.NORMAL);
@@ -85,7 +67,46 @@ public class main {
                         ", Spot ID: " + Ev1Ticket.getParkingSpot().getSpotId()
         );
 
+        //Generate Invoice
+        Invoice invoice = parkingLotService.unparkVehicle(car2Ticket.getTicketId());
+        System.out.println(
+                "Invoice Details -> " +
+                        "ID: " + invoice.getInvoiceId() +
+                        ", Entry Time: " + invoice.getEntryTime() +
+                        ", Exit Time: " + invoice.getExitTime() +
+                        ", Spot ID: " + invoice.getSpotId() +
+                        ", Amount: " + invoice.getAmount()
+        );
 
+    }
 
+    private static ParkingLotService getParkingLotService() {
+        ParkingLot parkingLot = getParkingLot();
+
+        //Select the strategy to allocate the spot to the vehicle.
+        SpotAllocator allocator = new SpotAllocator(new SpotAllocationStrategyFactory());
+
+        //Initiate Ticket Service
+        TicketService ticketService = new TicketService(new InMemoryTicketRepository());
+
+        //Initiate Invoice Service
+        InvoiceService invoiceService = new InvoiceService(new PricingService(new PricingAllocationStrategyFactory()));
+
+        //Create ParkingLotService to manage the parking lot operations.
+        return new ParkingLotService(allocator, ticketService, parkingLot, invoiceService);
+    }
+
+    private static ParkingLot getParkingLot() {
+        ParkingSpot parkingSpot1 = new ParkingSpot("1", SupportedVehicleType.CAR, 10);
+        ParkingSpot parkingSpot2 = new ParkingSpot("2", SupportedVehicleType.CAR, 10);
+        ParkingSpot parkingSpot3 = new ParkingSpot("3", SupportedVehicleType.BIKE, 10);
+        ParkingSpot parkingSpot4 = new ParkingSpot("4", SupportedVehicleType.EV, 10);
+
+        //Create Parking Floor and assign Spot to these floors.
+        ParkingFloor parkingFloor1 = new ParkingFloor("1", List.of(parkingSpot1, parkingSpot2, parkingSpot3));
+        ParkingFloor parkingFloor2 = new ParkingFloor("2", List.of(parkingSpot4));
+
+        //Create Parking Lot with the location Selected and assign the floors to the parking lot.
+        return new ParkingLot("AMB Mall", List.of(parkingFloor1,parkingFloor2));
     }
 }

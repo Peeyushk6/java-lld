@@ -3,12 +3,13 @@ package parkingLotService.model;
 import java.time.LocalDateTime;
 
 public class Ticket {
-    private String ticketId;
-    private Vehicle vehicle;
-    private ParkingSpot parkingSpot;
-    private LocalDateTime entryTime;
+    private final String ticketId;
+    private final Vehicle vehicle;
+    private final ParkingSpot parkingSpot;
+    private final LocalDateTime entryTime;
+    private LocalDateTime exitTime;
 
-    public Ticket(String ticketId, Vehicle vehicle, ParkingSpot spot, LocalDateTime time){
+    public Ticket(String ticketId, Vehicle vehicle, ParkingSpot spot, LocalDateTime time) {
         this.ticketId = ticketId;
         this.vehicle = vehicle;
         this.parkingSpot = spot;
@@ -29,5 +30,13 @@ public class Ticket {
 
     public LocalDateTime getEntryTime() {
         return entryTime;
+    }
+
+    public void close(LocalDateTime time) {
+        this.exitTime = time;
+    }
+
+    public LocalDateTime getExitTime() {
+        return this.exitTime;
     }
 }
