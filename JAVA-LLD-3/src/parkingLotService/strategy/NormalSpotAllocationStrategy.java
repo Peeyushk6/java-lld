@@ -7,7 +7,7 @@ import parkingLotService.model.Vehicle;
 import java.util.List;
 import java.util.Optional;
 
-public class FirstAvailableSpotsStrategy implements SpotAllocationStrategy {
+public class NormalSpotAllocationStrategy implements SpotAllocationStrategy {
     @Override
     public Optional<ParkingSpot> allocate(Vehicle vehicle, List<ParkingSpot> spots){
         for(ParkingSpot spot: spots){

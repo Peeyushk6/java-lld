@@ -25,8 +25,12 @@ public class ParkingLotService {
 
         spot.get().park(vehicle);
 
-        return ticketService.createTicket(vehicle, spot.get());
-
+        try{
+            return ticketService.createTicket(vehicle, spot.get());
+        } catch(Exception ex) {
+            spot.get().unpark();
+            throw ex;
+        }
 
     }
 }

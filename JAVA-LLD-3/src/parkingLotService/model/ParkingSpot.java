@@ -8,17 +8,23 @@ public class ParkingSpot {
     private SpotStatus status;
     private Vehicle vehicle;
     private SupportedVehicleType supportedVehicleType;
+    private int distanceFromGate;
 
-    public ParkingSpot(String spotId, SupportedVehicleType supportedVehicleType){
+    public ParkingSpot(String spotId, SupportedVehicleType supportedVehicleType, int distanceFromGate){
         this.spotId = spotId;
         this.supportedVehicleType = supportedVehicleType;
         this.vehicle = null;
         this.status = SpotStatus.AVAILABLE;
+        this.distanceFromGate = distanceFromGate;
     }
 
     public boolean isAvailable(){
         return status == SpotStatus.AVAILABLE;
 
+    }
+
+    public int getDistanceFromGate(){
+        return distanceFromGate;
     }
 
     public String getSpotId(){
